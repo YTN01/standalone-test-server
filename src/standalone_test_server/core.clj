@@ -256,8 +256,8 @@
            (with-standalone-server ~(subvec bindings 2) ~@body)
            (finally
              (let [shutdown-await# (promise)
-                   lifecycle-listener# (proxy
-                                         ~'org.eclipse.jetty.util.component.AbstractLifeCycleListener
+                   lifecycle-listener# (reify
+                                         ~'org.eclipse.jetty.util.component.LifeCycle$Listener
                                          (~'lifeCycleStarting [~'_ ~'_])
                                          (~'lifeCycleStarted [~'_ ~'_])
                                          (~'lifeCycleFailure [~'_ ~'_ ~'_]
