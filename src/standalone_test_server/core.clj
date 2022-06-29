@@ -268,6 +268,7 @@
                  (deliver shutdown-await# false))
                (.stop ~tagged-server)
                (deref shutdown-await#)
+               (.removeLifeCycleListener ~tagged-server lifecycle-listener#)
                nil)))))))
 
 (defn seq-handler
