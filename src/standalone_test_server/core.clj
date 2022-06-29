@@ -257,7 +257,8 @@
            (finally
              (let [shutdown-await# (promise)
                    lifecycle-listener# (proxy
-                                         [~'org.eclipse.jetty.util.component.AbstractLifeCycle$AbstractLifeCycleListener] []
+                                         [~'org.eclipse.jetty.util.component.AbstractLifeCycle$AbstractLifeCycleListener]
+                                         []
                                          (~'lifeCycleFailure [~'_ ~'_]
                                            (deliver shutdown-await# true))
                                          (~'lifeCycleStopped [~'_]
