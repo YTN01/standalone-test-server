@@ -255,20 +255,20 @@
          (try
            (with-standalone-server ~(subvec bindings 2) ~@body)
            (finally
-             (let [await-shutdown (promise)
+             (let [await-shutdown# (promise)
                    lifecycle-listener# (proxy
                                          [~'org.eclipse.jetty.util.component.AbstractLifeCycle$AbstractLifeCycleListener]
                                          []
                                          (~'lifeCycleFailure [~'_ ~'_]
-                                           (deliver await-shutdown nil))
+                                           (deliver await-shutdown# nil))
                                          (~'lifeCycleStopped [~'_]
-                                           (deliver await-shutdown nil)))]
+                                           (deliver await-shutdown# nil)))]
                (if (or (.isStarting ~tagged-server)
                        (.isStarted ~tagged-server))
                  (.addLifeCycleListener ~tagged-server lifecycle-listener#)
-                 (deliver await-shutdown nil))
+                 (deliver await-shutdown# nil))
                (.stop ~tagged-server)
-               (deref await-shutdown)
+               (deref await-shutdown#)
                (.removeLifeCycleListener ~tagged-server lifecycle-listener#)
                nil)))))))
 
