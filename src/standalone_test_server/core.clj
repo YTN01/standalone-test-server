@@ -255,7 +255,25 @@
          (try
            (with-standalone-server ~(subvec bindings 2) ~@body)
            (finally
-             (.stop ~tagged-server)))))))
+             (let [shutdown-await# (promise)
+                   lifecycle-listener# (proxy
+                                         ~'org.eclipse.jetty.util.component.AbstractLifeCycleListener
+                                         (~'lifeCycleStarting [~'_ ~'_])
+                                         (~'lifeCycleStarted [~'_ ~'_])
+                                         (~'lifeCycleFailure [~'_ ~'_ ~'_]
+                                           (deliver shutdown-await# true))
+                                         (~'lifeCycleStopping [~'_ ~'_])
+                                         (~'lifeCycleStopped [~'_ ~'_]
+                                           (deliver shutdown-await# true)))]
+               (if (or (.isStarting ~tagged-server)
+                       (.isStarted ~tagged-server))
+                 (.addLifeCycleListener
+                   ~tagged-server
+                   lifecycle-listener#)
+                 (deliver shutdown-await# false))
+               (.stop ~tagged-server)
+               (deref shutdown-await#)
+               nil)))))))
 
 (defn seq-handler
   "A helper function which iterates through a sequence of handlers using a new one for each call to the handler.
